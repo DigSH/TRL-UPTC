@@ -64,15 +64,15 @@ tools/verify.js       Comprueba que el cálculo coincide con las fórmulas del E
 
 ## Identidad gráfica
 
-La paleta procede del logotipo de la OTRI (azul petróleo `#0e2a32`, verdeazul `#1d6a6b` / `#22808a`,
-dorado `#e4b11d`) y el degradado de la portada, del cabezote institucional. El logotipo se publica en
-variante clara y oscura, generadas automáticamente: los colores del isotipo van en clases CSS y el
-texto hereda el `fill` de la raíz, así que basta fijarlo para obtener cada versión.
+La paleta procede de los colores institucionales (azul petróleo `#0e2a32`, verdeazul `#1d6a6b` /
+`#22808a`, dorado `#e4b11d`), y el degradado de la portada, del cabezote institucional.
 
 Los contrastes están comprobados contra WCAG AA: el verdeazul da 6,31:1 sobre blanco. El dorado y el
 verdeazul claro no alcanzan 4,5:1, por lo que solo se usan como relleno o sobre fondo oscuro.
 
-El informe en PDF va encabezado por el membrete de la Vicerrectoría de Investigación y Extensión.
+La página no muestra logotipos. El informe en PDF sí va encabezado por el membrete de la Vicerrectoría
+de Investigación y Extensión, para que funcione como documento oficial. Los másteres institucionales
+se conservan en `assets/brand/` aunque no se publiquen.
 
 ## Desarrollo
 

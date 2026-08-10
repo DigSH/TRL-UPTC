@@ -118,30 +118,16 @@ p { margin: 0 0 .9rem; }
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem; padding-top: .85rem; padding-bottom: .85rem;
 }
-.brand { display: flex; align-items: center; gap: .9rem; min-width: 0; }
-.brand-logo { flex: none; display: block; }
-/* Sin display aquí: lo fijan las reglas de variante de abajo, que tienen menor
-   especificidad y quedarían anuladas por un `.brand-logo img { display: block }`. */
-.brand-logo img { height: 38px; width: auto; }
-.brand-text {
-  display: flex; flex-direction: column; min-width: 0;
-  padding-left: .9rem; border-left: 1px solid var(--border);
+.brand { display: flex; align-items: center; gap: .8rem; min-width: 0; }
+.brand-mark {
+  display: grid; place-items: center;
+  width: 42px; height: 42px; flex: none;
+  background: var(--accent); color: var(--accent-text);
+  border-radius: 9px; font-weight: 700; font-size: .8rem; letter-spacing: .06em;
 }
+.brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-text strong { font-size: 1rem; line-height: 1.3; }
 .brand-text small { color: var(--text-dim); font-size: .78rem; }
-
-/* Cada variante del logotipo lleva el texto en un color fijo, así que se
-   intercambian según el tema en vez de recolorearlas por CSS. */
-.logo-light { display: block; }
-.logo-dark { display: none; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .logo-light { display: none; }
-  :root:not([data-theme="light"]) .logo-dark { display: block; }
-}
-:root[data-theme="dark"] .logo-light { display: none; }
-:root[data-theme="dark"] .logo-dark { display: block; }
-:root[data-theme="light"] .logo-light { display: block; }
-:root[data-theme="light"] .logo-dark { display: none; }
 
 .header-actions { display: flex; align-items: center; gap: .5rem; }
 .save-hint {
@@ -206,7 +192,6 @@ main { padding: 2rem 20px 4rem; }
     radial-gradient(circle at 82% 18%, rgba(47, 198, 243, .28), transparent 45%),
     radial-gradient(circle at 18% 92%, rgba(228, 177, 29, .16), transparent 42%);
 }
-.hero-logo { position: relative; z-index: 1; height: 92px; width: auto; flex: none; }
 .hero-text { position: relative; z-index: 1; flex: 1; min-width: 260px; }
 .hero-eyebrow {
   display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
@@ -217,7 +202,6 @@ main { padding: 2rem 20px 4rem; }
 
 @media (max-width: 700px) {
   .hero { padding: 1.4rem; gap: 1.2rem; }
-  .hero-logo { height: 64px; }
 }
 
 /* La guía reparte el texto y el panel lateral para no dejar la columna derecha vacía. */

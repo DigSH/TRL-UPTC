@@ -136,21 +136,19 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
 `assets/brand/` holds the institutional masters **exactly as supplied** — never edit them.
 `assets/img/` holds the web-ready files, all **generated** by `tools/build_brand.py`.
 
-The colour palette in `styles.css` is taken from the OTRI logo. Gold (`#e4b11d`) and pale teal
-(`#92c3c0`) sit below 4.5:1 on white, so they are only ever fills or text on dark — never text on a
-light background. Contrast figures are noted in the palette comment; keep them true if you change a
-colour.
+**The site shows no logos** — the user asked for them to be removed. Only the UPTC/ViE letterhead
+survives, and only at the top of the printed report so it reads as an official document. `log_otri.svg`
+and `cab_otri.svg` stay in `assets/brand/` as masters but are not published; the code that derived
+theme-aware logo variants from them is in git history (commit 5e5a84f) if it is ever wanted back.
+Do not re-add logos to the page without asking.
 
-The logo's colour segments are `.cls-N` classes while the "TRI" wordmark and descriptor are unclassed
-paths that inherit the root `fill`. `build_brand.py` exploits this to emit light- and dark-theme
-variants without touching the isotype colours, plus a `-compact` crop of the viewBox (the two-line
-descriptor is illegible at header size). The variants are **swapped by CSS, not recoloured** — and the
-swap rules are low specificity, so do not add `display` to a rule like `.brand-logo img` or it will
-override them and both logos will show at once.
+The colour palette in `styles.css` comes from those institutional colours and stays. Gold (`#e4b11d`)
+and pale teal (`#92c3c0`) sit below 4.5:1 on white, so they are only ever fills or text on dark — never
+text on a light background. Contrast figures are noted in the palette comment; keep them true if you
+change a colour.
 
-`cab_otri.svg` is deliberately not published: 270 kB of decorative strokes. The guide hero reproduces
-its gradient with CSS `--hero-*` tokens instead.
+The guide hero reproduces the institutional banner's gradient with CSS `--hero-*` tokens rather than
+publishing `cab_otri.svg`, which is 270 kB of decorative strokes.
 
-Institutional hierarchy, which the footer and hero reflect: **UPTC → Vicerrectoría de Investigación y
-Extensión → OTRI**. The printed report is headed by the UPTC/ViE letterhead so it reads as an official
-document.
+Institutional hierarchy, which the footer reflects: **UPTC → Vicerrectoría de Investigación y
+Extensión → OTRI**.
