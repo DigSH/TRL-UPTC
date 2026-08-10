@@ -77,6 +77,17 @@ Navigation is hash-based over sibling `<section class="panel" data-panel="…">`
 results and roadmap panels. Question panels are generated from data, so `TABS` is built dynamically —
 adding a category to the Excel adds a tab with no HTML change.
 
+**Nothing derived is ever cached.** `renderResults()` and `renderPlan()` recompute from
+`state.answers` on every visit to their panel, so the diagnosis and the roadmap can never disagree
+with each other or go stale after an answer changes (verified end-to-end: flipping one answer moves
+the pending count and makes the affected TRL block appear/disappear). If you add memoisation for
+performance — it is not needed at 73 questions — you own the invalidation.
+
+The tab bar **must not scroll horizontally**: it wraps (`flex-wrap`, no `overflow-x`) and the seven
+questionnaire sections are compact numbered chips rather than text labels, because twelve text tabs
+did not fit and forced a horizontal scrollbar. Full section names live in `title`/`aria-label` and in
+the open section's own heading. Keep any new tab label short.
+
 `withGlossary()` wraps glossary terms found in question text in `<abbr>` tooltips. Its regex uses
 lookarounds with an explicit accented-letter class instead of `\b`, because JS word boundaries do not
 recognise `á í ó ú ñ` — a term like "Límites operacionales" would not match with `\b`.
@@ -84,7 +95,7 @@ recognise `á í ó ú ñ` — a term like "Límites operacionales" would not ma
 ## Print / PDF
 
 The "download PDF" buttons are `window.print()` against the print stylesheet at the bottom of
-`styles.css`. Three non-obvious constraints there, each fixing a real bug — do not drop them:
+`styles.css`. Four non-obvious constraints there, each fixing a real bug — do not drop them:
 
 - **`print-color-adjust: exact`** on bars, chips and steps. Browsers omit backgrounds when printing, so
   progress bars print as empty outlines without it.
@@ -93,7 +104,6 @@ The "download PDF" buttons are `window.print()` against the print stylesheet at 
 - **The palette override repeats every theme selector** (`:root`, `[data-theme="dark"]`,
   `[data-theme="light"]`, `:not([data-theme="light"])`). A bare `:root` loses on specificity to the
   dark-theme selectors, so printing while in dark mode would produce black pages.
-
 - **All animations and transitions are disabled in print.** The `.panel` entrance animation starts at
   `opacity: 0`, and a print snapshot can catch it there — every page comes out blank. This is not
   hypothetical; it happened.
@@ -119,6 +129,15 @@ rm -rf ./prof
 result, render pages to PNG with PyMuPDF (`fitz`) and read the images — the PDF has no extractable text
 layer worth reading. Since results depend on `localStorage`, seed it with a temporary page that writes
 the key and then `location.replace('index.html#…')`, and delete that page afterwards.
+
+### Verifying interactive behaviour
+
+`verify.js` only covers the scoring maths; it cannot see the UI. To check behaviour that depends on
+clicking — does panel X update after action Y? — write a throwaway page in the repo root that loads
+`index.html` in a same-origin `<iframe>`, drives it (`.tab[data-tab="…"]`.click(), `#q-<id>-yes`.click()),
+writes findings into a `<pre>`, and read it back with headless Chrome's `--dump-dom`. Delete the page
+afterwards. This is how the "does the roadmap recalculate too?" question was answered with evidence
+instead of by reading code.
 
 ## Deployment
 
