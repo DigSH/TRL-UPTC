@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herramienta de diagnóstico TRL — UPTC</title>
+<meta name="description" content="Herramienta de estimación del grado de desarrollo tecnológico (TRL) de la Universidad Pedagógica y Tecnológica de Colombia.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Ir al contenido</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">TRL</span>
+      <span class="brand-text">
+        <strong>Herramienta de diagnóstico TRL</strong>
+        <small>Dirección de Investigaciones · OTRI — UPTC</small>
+      </span>
+    </div>
+    <div class="header-actions">
+      <button type="button" id="theme-toggle" class="btn btn-ghost" aria-label="Cambiar tema">
+        <span data-theme-icon>◐</span>
+      </button>
+    </div>
+  </div>
+  <nav class="tabs wrap" id="tabs" aria-label="Secciones de la herramienta"></nav>
+  <div class="global-progress" aria-hidden="true"><span id="global-bar"></span></div>
+</header>
+
+<main id="main" class="wrap">
+
+  <!-- ══════════════ GUÍA ══════════════ -->
+  <section class="panel" id="panel-guia" data-panel="guia">
+    <h1>Estimación del grado de desarrollo de la tecnología</h1>
+
+    <div class="guide-top">
+      <div id="guide-intro" class="prose"></div>
+
+      <aside class="guide-aside">
+        <div class="callout">
+          <strong>Cómo responder</strong>
+          <ul>
+            <li>Responda cada pregunta con <b>Sí</b> o <b>No</b>.</li>
+            <li>Si duda de la respuesta o no lo tiene claro, marque <b>No</b>.</li>
+            <li>Si la pregunta <b>no aplica</b> a su tecnología, marque <b>Sí</b>.</li>
+            <li>Sus respuestas se guardan automáticamente en este navegador.</li>
+          </ul>
+        </div>
+        <div class="guide-facts">
+          <div><b>73</b><span>preguntas</span></div>
+          <div><b>7</b><span>categorías</span></div>
+          <div><b>9</b><span>niveles TRL</span></div>
+        </div>
+        <button type="button" class="btn btn-primary btn-block" data-goto="perfil">Comenzar diagnóstico →</button>
+      </aside>
+    </div>
+
+    <h2>Niveles TRL</h2>
+    <div class="levels" id="levels-list"></div>
+  </section>
+
+  <!-- ══════════════ PERFIL ══════════════ -->
+  <section class="panel" id="panel-perfil" data-panel="perfil" hidden>
+    <h1>Perfil de la tecnología</h1>
+    <p class="lead">Estos datos identifican el diagnóstico y aparecen en el informe final. Ningún dato sale de su navegador.</p>
+
+    <form class="profile-form" id="profile-form" autocomplete="off">
+      <label>
+        <span>Investigador(a)</span>
+        <input type="text" name="investigador" placeholder="Nombre y apellidos">
+      </label>
+      <label>
+        <span>Grupo I+D+i / Centro / Facultad</span>
+        <input type="text" name="grupo" placeholder="Grupo de investigación">
+      </label>
+      <label>
+        <span>Teléfono de contacto</span>
+        <input type="tel" name="telefono" placeholder="+57 ...">
+      </label>
+      <label>
+        <span>Correo electrónico</span>
+        <input type="email" name="email" placeholder="nombre@uptc.edu.co">
+      </label>
+      <label>
+        <span>Nombre de la tecnología</span>
+        <input type="text" name="tecnologia" placeholder="Denominación del desarrollo">
+      </label>
+      <label class="full">
+        <span>Breve descripción de la tecnología <small>(3 – 4 frases)</small></span>
+        <textarea name="descripcion" rows="4" placeholder="Qué es, qué problema resuelve y en qué estado se encuentra."></textarea>
+      </label>
+    </form>
+
+    <div class="row-actions">
+      <button type="button" class="btn btn-primary" data-goto="s0">Continuar al cuestionario →</button>
+    </div>
+  </section>
+
+  <!-- ══════════════ SECCIONES DE PREGUNTAS (generadas) ══════════════ -->
+  <div id="question-panels"></div>
+
+  <!-- ══════════════ RESULTADOS ══════════════ -->
+  <section class="panel" id="panel-resultados" data-panel="resultados" hidden>
+    <div class="results-head">
+      <h1>Resultados del diagnóstico</h1>
+      <div class="row-actions no-print">
+        <button type="button" class="btn" id="btn-print">Descargar informe (PDF)</button>
+        <button type="button" class="btn" id="btn-export">Exportar respuestas (JSON)</button>
+        <button type="button" class="btn" id="btn-import-trigger">Importar respuestas</button>
+        <input type="file" id="btn-import" accept="application/json" hidden>
+      </div>
+    </div>
+
+    <div id="results-warning" class="callout warn" hidden></div>
+
+    <div class="print-only report-meta" id="report-meta"></div>
+
+    <div class="score-card" id="score-card"></div>
+
+    <h2>Progreso por nivel TRL</h2>
+    <p class="hint">El TRL asignado es el nivel <b>más alto</b> cuyo porcentaje de respuestas «Sí» supera su umbral, evaluando de TRL&nbsp;9 hacia TRL&nbsp;1 (misma regla que la hoja RESULTADOS del libro original). La línea vertical de cada barra marca el umbral del nivel.</p>
+    <div class="bars" id="bars-trl"></div>
+
+    <h2>Progreso por categoría</h2>
+    <div class="bars" id="bars-cat"></div>
+
+    <h2>Detalle de respuestas</h2>
+    <div class="detail-grid" id="detail-grid"></div>
+  </section>
+
+  <!-- ══════════════ PLAN DE TRABAJO ══════════════ -->
+  <section class="panel" id="panel-plan" data-panel="plan" hidden>
+    <h1>Plan de trabajo para maduración del TRL</h1>
+    <p class="lead">Actividades derivadas de las preguntas respondidas con <b>No</b>. Se ordenan por nivel TRL para priorizar el siguiente salto de madurez.</p>
+    <div class="row-actions no-print">
+      <label class="switch">
+        <input type="checkbox" id="plan-only-pending" checked>
+        <span>Mostrar solo actividades pendientes</span>
+      </label>
+      <button type="button" class="btn" id="btn-print-plan">Descargar plan (PDF)</button>
+    </div>
+    <div id="plan-list"></div>
+  </section>
+
+  <!-- ══════════════ GLOSARIO ══════════════ -->
+  <section class="panel" id="panel-glosario" data-panel="glosario" hidden>
+    <h1>Glosario</h1>
+    <p class="lead">Términos empleados en el cuestionario. En las preguntas aparecen <abbr class="term">subrayados</abbr>; pase el cursor sobre ellos para ver la definición.</p>
+    <input type="search" id="glossary-search" class="search" placeholder="Buscar término…" aria-label="Buscar término">
+    <dl class="glossary" id="glossary-list"></dl>
+  </section>
+
+</main>
+
+<footer class="site-footer no-print">
+  <div class="wrap">
+    <p>Adaptada de las metodologías TRL de la NASA, el Departamento de Defensa de EE. UU. y NYSERDA.</p>
+    <p>Universidad Pedagógica y Tecnológica de Colombia · Oficina de Transferencia de Resultados de Investigación (OTRI)</p>
+    <p class="no-print"><button type="button" class="linklike" id="btn-reset">Borrar todas las respuestas</button></p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
