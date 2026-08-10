@@ -137,25 +137,50 @@ p { margin: 0 0 .9rem; }
 .save-hint[data-state="ok"] { opacity: 1; }
 .save-hint[data-state="error"] { opacity: 1; color: var(--danger); }
 
+/* La barra fluye en varias líneas en lugar de desplazarse: con 12 pestañas de
+   texto no cabía y aparecía una barra de desplazamiento horizontal. */
 .tabs {
-  display: flex; gap: .25rem; overflow-x: auto;
-  padding-bottom: 0; scrollbar-width: thin;
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: .1rem .2rem; padding-bottom: .3rem;
 }
 .tab {
   flex: none;
   appearance: none; background: none; border: 0;
   border-bottom: 2px solid transparent;
   color: var(--text-dim); font: inherit; font-size: .875rem;
-  padding: .55rem .7rem; cursor: pointer; white-space: nowrap;
+  padding: .5rem .65rem; cursor: pointer; white-space: nowrap;
   display: inline-flex; align-items: center; gap: .4rem;
 }
 .tab:hover { color: var(--text); }
 .tab[aria-current="true"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-.tab .dot {
-  width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex: none;
+
+/* Grupo de secciones del cuestionario, como casillas numeradas compactas. */
+.tab-group {
+  display: inline-flex; align-items: center; gap: .25rem;
+  margin: 0 .45rem; padding: 0 .55rem;
+  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
 }
-.tab[data-state="partial"] .dot { background: var(--gold); }
-.tab[data-state="done"] .dot { background: var(--ok); }
+.tab-group-label {
+  font-size: .68rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-dim); font-weight: 700; margin-right: .1rem;
+}
+.tab-num {
+  width: 27px; height: 27px; padding: 0; justify-content: center;
+  border: 1px solid var(--border); border-radius: 7px;
+  font-size: .8rem; font-weight: 700; line-height: 1;
+}
+.tab-num:hover { border-color: var(--accent); }
+.tab-num[data-state="partial"] { border-color: var(--gold); color: var(--warn); }
+.tab-num[data-state="done"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.tab-num[aria-current="true"] {
+  background: var(--accent); border-color: var(--accent);
+  color: var(--accent-text); border-bottom-color: var(--accent);
+}
+
+@media (max-width: 560px) {
+  .tab-group { margin: 0; padding: .25rem 0; border: 0; width: 100%; flex-wrap: wrap; }
+  .tab-group-label { width: 100%; }
+}
 
 .global-progress { height: 3px; background: var(--surface-2); }
 .global-progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }

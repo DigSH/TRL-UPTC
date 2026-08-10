@@ -179,18 +179,43 @@
     { id: 'guia', label: 'Guía' },
     { id: 'perfil', label: 'Perfil' },
   ]
-    .concat(DATA.sections.map((section, index) => ({ id: 's' + index, label: `${index + 1}. ${section.short}`, section: index })))
+    .concat(DATA.sections.map((section, index) => ({
+      id: 's' + index,
+      label: `${index + 1}. ${section.short}`,
+      short: section.short,
+      section: index,
+    })))
     .concat([
       { id: 'resultados', label: 'Resultados' },
-      { id: 'plan', label: 'Plan de trabajo' },
+      { id: 'plan', label: 'Ruta TRL 9' },
       { id: 'glosario', label: 'Glosario' },
     ]);
 
+  /* Las 7 secciones del cuestionario se agrupan como casillas numeradas: con
+     etiquetas de texto la barra no cabía y obligaba a desplazarla en horizontal.
+     El nombre completo va en title/aria-label, y la sección abierta lo repite
+     en su encabezado, así que no se pierde información. */
   function buildTabs() {
-    $('#tabs').innerHTML = TABS.map((tab) => `
-      <button type="button" class="tab" data-tab="${tab.id}">
-        ${tab.section !== undefined ? '<span class="dot"></span>' : ''}${escapeHtml(tab.label)}
-      </button>`).join('');
+    const render = (tab) => {
+      if (tab.section === undefined) {
+        return `<button type="button" class="tab" data-tab="${tab.id}">${escapeHtml(tab.label)}</button>`;
+      }
+      const name = `Sección ${tab.section + 1} de ${DATA.sections.length}: ${tab.short}`;
+      return `<button type="button" class="tab tab-num" data-tab="${tab.id}"
+        title="${escapeHtml(name)}" aria-label="${escapeHtml(name)}">${tab.section + 1}</button>`;
+    };
+
+    const before = TABS.filter((tab) => tab.section === undefined && ['guia', 'perfil'].includes(tab.id));
+    const sections = TABS.filter((tab) => tab.section !== undefined);
+    const after = TABS.filter((tab) => tab.section === undefined && !['guia', 'perfil'].includes(tab.id));
+
+    $('#tabs').innerHTML =
+      before.map(render).join('') +
+      `<span class="tab-group">
+         <span class="tab-group-label" aria-hidden="true">Cuestionario</span>
+         ${sections.map(render).join('')}
+       </span>` +
+      after.map(render).join('');
   }
 
   function buildGuide() {
