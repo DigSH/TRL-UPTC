@@ -53,11 +53,26 @@ faltan en cada nivel; `tools/verify.js` lo contrasta contra una búsqueda exhaus
 ```
 index.html            Interfaz completa (una sola página, navegación por pestañas)
 assets/styles.css     Estilos, tema claro/oscuro y hoja de impresión A4
-assets/app.js         Estado, cálculo del TRL, plan de trabajo, import/export
+assets/app.js         Estado, cálculo del TRL, ruta de maduración, import/export
 assets/data.js        Datos generados desde el Excel — no editar a mano
+assets/brand/         Originales institucionales tal como se entregaron
+assets/img/           Recursos de marca listos para web — generados, no editar a mano
 tools/build_data.py   Regenera assets/data.js a partir del libro .xlsm
+tools/build_brand.py  Regenera assets/img/ a partir de assets/brand/
 tools/verify.js       Comprueba que el cálculo coincide con las fórmulas del Excel
 ```
+
+## Identidad gráfica
+
+La paleta procede del logotipo de la OTRI (azul petróleo `#0e2a32`, verdeazul `#1d6a6b` / `#22808a`,
+dorado `#e4b11d`) y el degradado de la portada, del cabezote institucional. El logotipo se publica en
+variante clara y oscura, generadas automáticamente: los colores del isotipo van en clases CSS y el
+texto hereda el `fill` de la raíz, así que basta fijarlo para obtener cada versión.
+
+Los contrastes están comprobados contra WCAG AA: el verdeazul da 6,31:1 sobre blanco. El dorado y el
+verdeazul claro no alcanzan 4,5:1, por lo que solo se usan como relleno o sobre fondo oscuro.
+
+El informe en PDF va encabezado por el membrete de la Vicerrectoría de Investigación y Extensión.
 
 ## Desarrollo
 

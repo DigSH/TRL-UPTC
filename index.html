@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Herramienta de diagnóstico TRL — UPTC</title>
 <meta name="description" content="Herramienta de estimación del grado de desarrollo tecnológico (TRL) de la Universidad Pedagógica y Tecnológica de Colombia.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230e2a32'/><circle cx='16' cy='16' r='8' fill='none' stroke='%2322808a' stroke-width='5'/><path d='M16 8a8 8 0 0 1 0 16' fill='none' stroke='%23e4b11d' stroke-width='5'/></svg>">
+<meta name="theme-color" content="#0e2a32">
 <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
@@ -15,13 +16,17 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">TRL</span>
+      <span class="brand-logo">
+        <img src="assets/img/otri-logo-compact.svg" alt="OTRI, Oficina de Transferencia de Resultados de Investigación" class="logo-light" width="800" height="185">
+        <img src="assets/img/otri-logo-compact-dark.svg" alt="" aria-hidden="true" class="logo-dark" width="800" height="185">
+      </span>
       <span class="brand-text">
         <strong>Herramienta de diagnóstico TRL</strong>
-        <small>Dirección de Investigaciones · OTRI — UPTC</small>
+        <small>Vicerrectoría de Investigación y Extensión · UPTC</small>
       </span>
     </div>
     <div class="header-actions">
+      <span class="save-hint" id="save-hint" role="status" aria-live="polite"></span>
       <button type="button" id="theme-toggle" class="btn btn-ghost" aria-label="Cambiar tema">
         <span data-theme-icon>◐</span>
       </button>
@@ -35,7 +40,15 @@
 
   <!-- ══════════════ GUÍA ══════════════ -->
   <section class="panel" id="panel-guia" data-panel="guia">
-    <h1>Estimación del grado de desarrollo de la tecnología</h1>
+    <div class="hero">
+      <img src="assets/img/otri-logo-dark.svg" alt="" aria-hidden="true" class="hero-logo" width="800" height="296">
+      <div class="hero-text">
+        <span class="hero-eyebrow">Universidad Pedagógica y Tecnológica de Colombia</span>
+        <h1>Estimación del grado de desarrollo de la tecnología</h1>
+        <p>Determine el nivel TRL de su desarrollo respondiendo 73 preguntas y obtenga una ruta
+          de maduración con las actividades que le faltan para llegar al TRL&nbsp;9.</p>
+      </div>
+    </div>
 
     <div class="guide-top">
       <div id="guide-intro" class="prose"></div>
@@ -105,6 +118,7 @@
 
   <!-- ══════════════ RESULTADOS ══════════════ -->
   <section class="panel" id="panel-resultados" data-panel="resultados" hidden>
+    <img class="letterhead print-only" src="assets/img/uptc-vie-cabezote.png" alt="" aria-hidden="true">
     <div class="results-head">
       <h1>Resultados del diagnóstico</h1>
       <div class="row-actions no-print">
@@ -134,6 +148,7 @@
 
   <!-- ══════════════ PLAN DE TRABAJO ══════════════ -->
   <section class="panel" id="panel-plan" data-panel="plan" hidden>
+    <img class="letterhead print-only" src="assets/img/uptc-vie-cabezote.png" alt="" aria-hidden="true">
     <h1>Ruta de maduración hasta TRL 9</h1>
     <p class="lead">Recomendaciones derivadas del diagnóstico: qué falta, nivel por nivel, para superar cada
       umbral y llegar al TRL 9. Cada actividad corresponde a una pregunta respondida con <b>No</b>.</p>
@@ -161,7 +176,8 @@
 <footer class="site-footer no-print">
   <div class="wrap">
     <p>Adaptada de las metodologías TRL de la NASA, el Departamento de Defensa de EE. UU. y NYSERDA.</p>
-    <p>Universidad Pedagógica y Tecnológica de Colombia · Oficina de Transferencia de Resultados de Investigación (OTRI)</p>
+    <p>Universidad Pedagógica y Tecnológica de Colombia · Vicerrectoría de Investigación y Extensión<br>
+      Oficina de Transferencia de Resultados de Investigación (OTRI)</p>
     <p class="no-print"><button type="button" class="linklike" id="btn-reset">Borrar todas las respuestas</button></p>
   </div>
 </footer>

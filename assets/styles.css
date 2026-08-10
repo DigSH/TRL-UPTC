@@ -2,22 +2,34 @@
    Herramienta de diagnóstico TRL — UPTC
    ══════════════════════════════════════════════════════════════ */
 
+/* Paleta institucional OTRI, tomada de assets/brand/log_otri.svg:
+   #0e2a32 azul petróleo · #1d6a6b y #22808a verdeazul · #92c3c0 verdeazul claro
+   #e4b11d y #fdca2b dorado. El degradado de --hero-* proviene del cabezote OTRI.
+
+   Contraste comprobado (WCAG AA): #1d6a6b sobre blanco 6,31:1 y #0e2a32 15,0:1.
+   Los dorados y el verdeazul claro NO llegan a 4,5:1 sobre blanco, así que solo
+   se usan como relleno o sobre fondo oscuro, nunca como texto en tema claro. */
 :root {
-  --bg: #f4f6f8;
+  --bg: #f2f5f6;
   --surface: #ffffff;
-  --surface-2: #eef1f5;
-  --border: #d8dee6;
-  --text: #16202b;
-  --text-dim: #5a6675;
-  --accent: #0f5132;
-  --accent-soft: #e6f0ea;
+  --surface-2: #e8eef0;
+  --border: #ccd8dc;
+  --text: #0e2a32;
+  --text-dim: #55686e;
+  --accent: #1d6a6b;
+  --accent-hover: #22808a;
+  --accent-soft: #e4eeee;
   --accent-text: #ffffff;
-  --gold: #c9a227;
+  --gold: #e4b11d;
+  --on-gold: #0e2a32;
   --danger: #a4262c;
-  --ok: #17794c;
-  --warn: #8a6100;
-  --warn-bg: #fdf5e2;
-  --shadow: 0 1px 2px rgba(16, 32, 43, .06), 0 8px 24px rgba(16, 32, 43, .06);
+  --ok: #1d6a6b;
+  --warn: #7a5b00;
+  --warn-bg: #fdf6e3;
+  --hero-from: #021b24;
+  --hero-mid: #08678c;
+  --hero-to: #0c98cf;
+  --shadow: 0 1px 2px rgba(14, 42, 50, .06), 0 8px 24px rgba(14, 42, 50, .07);
   --radius: 10px;
   --maxw: 1080px;
 }
@@ -29,41 +41,45 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #10151b;
-    --surface: #171d25;
-    --surface-2: #1f2731;
-    --border: #2c3743;
-    --text: #e6ebf1;
-    --text-dim: #9aa7b5;
-    --accent: #4cb782;
-    --accent-soft: #1c2c25;
-    --accent-text: #08130d;
-    --gold: #e0bd4a;
+    --bg: #0c161a;
+    --surface: #122127;
+    --surface-2: #1a2c33;
+    --border: #263c44;
+    --text: #e6eef0;
+    --text-dim: #93a8ae;
+    --accent: #92c3c0;
+    --accent-hover: #a9d3d0;
+    --accent-soft: #16302f;
+    --accent-text: #06201f;
+    --gold: #e4b11d;
+    --on-gold: #0e2a32;
     --danger: #f1707a;
-    --ok: #4cb782;
-    --warn: #e0bd4a;
-    --warn-bg: #2a2415;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    --ok: #92c3c0;
+    --warn: #e4b11d;
+    --warn-bg: #2b2513;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 8px 24px rgba(0, 0, 0, .35);
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #10151b;
-  --surface: #171d25;
-  --surface-2: #1f2731;
-  --border: #2c3743;
-  --text: #e6ebf1;
-  --text-dim: #9aa7b5;
-  --accent: #4cb782;
-  --accent-soft: #1c2c25;
-  --accent-text: #08130d;
-  --gold: #e0bd4a;
+  --bg: #0c161a;
+  --surface: #122127;
+  --surface-2: #1a2c33;
+  --border: #263c44;
+  --text: #e6eef0;
+  --text-dim: #93a8ae;
+  --accent: #92c3c0;
+  --accent-hover: #a9d3d0;
+  --accent-soft: #16302f;
+  --accent-text: #06201f;
+  --gold: #e4b11d;
+  --on-gold: #0e2a32;
   --danger: #f1707a;
-  --ok: #4cb782;
-  --warn: #e0bd4a;
-  --warn-bg: #2a2415;
-  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+  --ok: #92c3c0;
+  --warn: #e4b11d;
+  --warn-bg: #2b2513;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .45), 0 8px 24px rgba(0, 0, 0, .35);
   color-scheme: dark;
 }
 
@@ -102,16 +118,38 @@ p { margin: 0 0 .9rem; }
   display: flex; align-items: center; justify-content: space-between;
   gap: 1rem; padding-top: .85rem; padding-bottom: .85rem;
 }
-.brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
-.brand-mark {
-  display: grid; place-items: center;
-  width: 42px; height: 42px; flex: none;
-  background: var(--accent); color: var(--accent-text);
-  border-radius: 9px; font-weight: 700; font-size: .8rem; letter-spacing: .06em;
+.brand { display: flex; align-items: center; gap: .9rem; min-width: 0; }
+.brand-logo { flex: none; display: block; }
+/* Sin display aquí: lo fijan las reglas de variante de abajo, que tienen menor
+   especificidad y quedarían anuladas por un `.brand-logo img { display: block }`. */
+.brand-logo img { height: 38px; width: auto; }
+.brand-text {
+  display: flex; flex-direction: column; min-width: 0;
+  padding-left: .9rem; border-left: 1px solid var(--border);
 }
-.brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-text strong { font-size: 1rem; line-height: 1.3; }
 .brand-text small { color: var(--text-dim); font-size: .78rem; }
+
+/* Cada variante del logotipo lleva el texto en un color fijo, así que se
+   intercambian según el tema en vez de recolorearlas por CSS. */
+.logo-light { display: block; }
+.logo-dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-light { display: none; }
+  :root:not([data-theme="light"]) .logo-dark { display: block; }
+}
+:root[data-theme="dark"] .logo-light { display: none; }
+:root[data-theme="dark"] .logo-dark { display: block; }
+:root[data-theme="light"] .logo-light { display: block; }
+:root[data-theme="light"] .logo-dark { display: none; }
+
+.header-actions { display: flex; align-items: center; gap: .5rem; }
+.save-hint {
+  font-size: .78rem; color: var(--accent); font-weight: 600;
+  opacity: 0; transition: opacity .25s ease; white-space: nowrap;
+}
+.save-hint[data-state="ok"] { opacity: 1; }
+.save-hint[data-state="error"] { opacity: 1; color: var(--danger); }
 
 .tabs {
   display: flex; gap: .25rem; overflow-x: auto;
@@ -140,6 +178,47 @@ p { margin: 0 0 .9rem; }
 main { padding: 2rem 20px 4rem; }
 .panel { animation: fade .18s ease; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ───────────── Portada ─────────────
+   Reproduce el degradado del cabezote institucional (assets/brand/cab_otri.svg)
+   con CSS, evitando publicar 270 kB de trazos decorativos. */
+.hero {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;
+  background: linear-gradient(105deg, var(--hero-from) 0%, var(--hero-mid) 62%, var(--hero-to) 100%);
+  border-radius: var(--radius);
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.75rem;
+  color: #eaf6fb;
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(47, 198, 243, .28), transparent 45%),
+    radial-gradient(circle at 18% 92%, rgba(228, 177, 29, .16), transparent 42%);
+}
+.hero-logo { position: relative; z-index: 1; height: 92px; width: auto; flex: none; }
+.hero-text { position: relative; z-index: 1; flex: 1; min-width: 260px; }
+.hero-eyebrow {
+  display: block; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+  font-weight: 700; color: #92c3c0; margin-bottom: .4rem;
+}
+.hero h1 { color: #fff; margin-bottom: .6rem; }
+.hero p { margin: 0; color: #cfe6ef; max-width: 62ch; font-size: .95rem; }
+
+@media (max-width: 700px) {
+  .hero { padding: 1.4rem; gap: 1.2rem; }
+  .hero-logo { height: 64px; }
+}
 
 /* La guía reparte el texto y el panel lateral para no dejar la columna derecha vacía. */
 .guide-top {
@@ -223,6 +302,12 @@ input:focus-visible, textarea:focus-visible, .btn:focus-visible, .tab:focus-visi
   color: var(--text-dim); font-weight: 700; margin-bottom: .35rem;
 }
 .section-progress { color: var(--text-dim); font-size: .875rem; }
+.section-status {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: .6rem 1rem; margin-top: .35rem;
+}
+.section-tools { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+.btn-sm { font-size: .8rem; padding: .35rem .7rem; }
 
 .qlist { display: flex; flex-direction: column; gap: .6rem; }
 .qcard {
@@ -345,7 +430,7 @@ abbr.term {
   background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border);
 }
 .step[data-state="done"] { background: var(--ok); border-color: var(--ok); color: #fff; }
-.step[data-state="next"] { background: var(--gold); border-color: var(--gold); color: #2a2200; }
+.step[data-state="next"] { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
 .road-focus { margin: .9rem 0 0; font-size: .9rem; padding-top: .9rem; border-top: 1px dashed var(--border); }
 
 .road-level { margin-bottom: 1.5rem; }
@@ -456,15 +541,23 @@ abbr.term {
   :root[data-theme="dark"],
   :root[data-theme="light"],
   :root:not([data-theme="light"]) {
-    --bg: #fff; --surface: #fff; --surface-2: #edf0f3; --border: #b9c2cc;
-    --text: #000; --text-dim: #444;
-    --accent: #0f5132; --accent-soft: #eef4f0; --accent-text: #fff;
-    --gold: #9a7b12; --ok: #0f5132; --danger: #a4262c; --warn: #8a6100; --warn-bg: #fdf5e2;
+    --bg: #fff; --surface: #fff; --surface-2: #e8eef0; --border: #aebcc2;
+    --text: #000; --text-dim: #3f4d52;
+    --accent: #1d6a6b; --accent-hover: #1d6a6b; --accent-soft: #eaf2f2; --accent-text: #fff;
+    --gold: #d1a01a; --on-gold: #0e2a32; --ok: #1d6a6b;
+    --danger: #a4262c; --warn: #6d5100; --warn-bg: #fdf6e3;
     --shadow: none;
     color-scheme: light;
   }
   @page { size: A4; margin: 15mm 14mm; }
   body { background: #fff; font-size: 10.5pt; }
+
+  /* Sin animaciones al imprimir: la de entrada de .panel arranca en opacity 0 y
+     puede capturarse a medias, produciendo páginas en blanco. */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 
   /* Los navegadores omiten los fondos al imprimir: las barras saldrían vacías. */
   .bar-track, .bar-fill, .bar-threshold, .chip,
@@ -476,6 +569,12 @@ abbr.term {
 
   .road-level, .road-summary, .road-level-head { break-inside: avoid; }
   .road-level-head { break-after: avoid; }
+
+  /* Membrete institucional: encabeza el informe y se repite en cada página. */
+  .letterhead {
+    display: block; width: 100%; height: auto; margin-bottom: 1rem;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
 
   /* El ancho de página A4 cae por debajo del breakpoint móvil: se restaura
      la disposición en tres columnas para que cada barra ocupe una sola línea. */

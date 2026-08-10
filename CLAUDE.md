@@ -18,6 +18,7 @@ Spanish to match the existing code.
 python -m http.server 8000        # serve locally, open http://localhost:8000
 node tools/verify.js              # run the test suite (must pass before publishing)
 python tools/build_data.py        # regenerate assets/data.js from the Excel (needs: pip install openpyxl)
+python tools/build_brand.py       # regenerate assets/img/ from assets/brand/ (needs: pip install Pillow)
 ```
 
 `verify.js` has no test framework — it is a plain script with a `check(name, actual, expected)` helper
@@ -93,6 +94,10 @@ The "download PDF" buttons are `window.print()` against the print stylesheet at 
   `[data-theme="light"]`, `:not([data-theme="light"])`). A bare `:root` loses on specificity to the
   dark-theme selectors, so printing while in dark mode would produce black pages.
 
+- **All animations and transitions are disabled in print.** The `.panel` entrance animation starts at
+  `opacity: 0`, and a print snapshot can catch it there — every page comes out blank. This is not
+  hypothetical; it happened.
+
 Related trap in `styles.css`: `.bar-fill` needs an explicit `display: block`. It is a `<span>`, and
 `width`/`height` do not apply to inline boxes — the bars silently never filled.
 
@@ -126,8 +131,26 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
   https://api.github.com/repos/DigSH/TRL-UPTC/pages/builds
 ```
 
-## Untracked assets
+## Brand assets
 
-`Cabezote VIE-01.png`, `cab_otri.svg` and `log_otri.svg` sit in the repo root but are deliberately
-**not committed** — institutional branding the user added, pending a decision on where it goes
-(site header, PDF report header). Confirm with the user before committing or wiring them in.
+`assets/brand/` holds the institutional masters **exactly as supplied** — never edit them.
+`assets/img/` holds the web-ready files, all **generated** by `tools/build_brand.py`.
+
+The colour palette in `styles.css` is taken from the OTRI logo. Gold (`#e4b11d`) and pale teal
+(`#92c3c0`) sit below 4.5:1 on white, so they are only ever fills or text on dark — never text on a
+light background. Contrast figures are noted in the palette comment; keep them true if you change a
+colour.
+
+The logo's colour segments are `.cls-N` classes while the "TRI" wordmark and descriptor are unclassed
+paths that inherit the root `fill`. `build_brand.py` exploits this to emit light- and dark-theme
+variants without touching the isotype colours, plus a `-compact` crop of the viewBox (the two-line
+descriptor is illegible at header size). The variants are **swapped by CSS, not recoloured** — and the
+swap rules are low specificity, so do not add `display` to a rule like `.brand-logo img` or it will
+override them and both logos will show at once.
+
+`cab_otri.svg` is deliberately not published: 270 kB of decorative strokes. The guide hero reproduces
+its gradient with CSS `--hero-*` tokens instead.
+
+Institutional hierarchy, which the footer and hero reflect: **UPTC → Vicerrectoría de Investigación y
+Extensión → OTRI**. The printed report is headed by the UPTC/ViE letterhead so it reads as an official
+document.

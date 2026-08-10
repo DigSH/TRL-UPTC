@@ -49,9 +49,26 @@
   function save() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      flashSaved();
     } catch (err) {
       console.warn('No se pudieron guardar las respuestas:', err);
+      const hint = document.getElementById('save-hint');
+      if (hint) {
+        hint.textContent = 'No se pudo guardar';
+        hint.dataset.state = 'error';
+      }
     }
+  }
+
+  /* Aviso discreto de autoguardado: sin él no hay señal de que las respuestas
+     persisten, y el cuestionario es largo como para generar dudas. */
+  function flashSaved() {
+    const hint = document.getElementById('save-hint');
+    if (!hint) return;
+    hint.textContent = 'Guardado';
+    hint.dataset.state = 'ok';
+    clearTimeout(flashSaved._timer);
+    flashSaved._timer = setTimeout(() => { hint.dataset.state = 'idle'; }, 1800);
   }
 
   // ═══════════════════════ Utilidades ═══════════════════════
@@ -218,9 +235,19 @@
           <div class="section-head">
             <span class="eyebrow">Sección ${index + 1} de ${DATA.sections.length}</span>
             <h1>${escapeHtml(section.title)}</h1>
-            <p class="section-progress" data-section-progress="${index}"></p>
+            <div class="section-status">
+              <span class="section-progress" data-section-progress="${index}"></span>
+              <span class="section-tools no-print">
+                <label class="switch">
+                  <input type="checkbox" data-filter-pending="${index}">
+                  <span>Solo sin responder</span>
+                </label>
+                <button type="button" class="btn btn-sm" data-jump="${index}">Ir a la siguiente sin responder</button>
+              </span>
+            </div>
           </div>
-          <div class="qlist">${questions}</div>
+          <div class="qlist" data-qlist="${index}">${questions}</div>
+          <p class="empty no-print" data-all-done="${index}" hidden>Todas las preguntas de esta sección están respondidas.</p>
           <div class="section-nav no-print">
             <button type="button" class="btn" data-goto="${prev.id}">← ${escapeHtml(prev.label)}</button>
             <button type="button" class="btn btn-primary" data-goto="${next.id}">${escapeHtml(next.label)} →</button>
@@ -269,10 +296,54 @@
       if (label) label.textContent = `${answered} de ${total} preguntas respondidas`;
       const tab = $(`.tab[data-tab="s${index}"]`);
       if (tab) tab.dataset.state = answered === 0 ? 'empty' : answered === total ? 'done' : 'partial';
+      applySectionFilter(index);
     });
 
     const answered = allQuestions.filter((q) => state.answers[q.id]).length;
     $('#global-bar').style.width = (answered / allQuestions.length) * 100 + '%';
+  }
+
+  /* Filtro "solo sin responder": oculta las tarjetas ya contestadas para que en
+     una sesión larga se vea de un vistazo lo que queda. Se aplica sobre el DOM
+     existente en vez de regenerarlo, para no perder el foco del teclado. */
+  function applySectionFilter(index) {
+    const toggle = $(`[data-filter-pending="${index}"]`);
+    if (!toggle) return;
+    const onlyPending = toggle.checked;
+    const section = DATA.sections[index];
+    let visible = 0;
+
+    section.items.forEach((item) => {
+      const card = $(`.qcard[data-question="${item.id}"]`);
+      if (!card) return;
+      const hide = onlyPending && Boolean(state.answers[item.id]);
+      card.hidden = hide;
+      if (!hide) visible += 1;
+    });
+
+    const notice = $(`[data-all-done="${index}"]`);
+    if (notice) notice.hidden = !(onlyPending && visible === 0);
+  }
+
+  /* Lleva el foco a la primera pregunta sin responder, de la sección actual o,
+     si ya está completa, de la siguiente que tenga pendientes. */
+  function jumpToPending(index) {
+    const order = DATA.sections
+      .map((section, i) => ({ section, i }))
+      .slice(index)
+      .concat(DATA.sections.map((section, i) => ({ section, i })).slice(0, index));
+
+    for (const entry of order) {
+      const next = entry.section.items.find((item) => !state.answers[item.id]);
+      if (!next) continue;
+      if (entry.i !== index) show('s' + entry.i);
+      const input = $(`#q-${CSS.escape(next.id)}-yes`);
+      const card = $(`.qcard[data-question="${next.id}"]`);
+      if (card) card.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (input) input.focus({ preventScroll: true });
+      return;
+    }
+    toast('No quedan preguntas sin responder');
   }
 
   function barRow(label, sub, ratio, threshold, reached) {
@@ -610,9 +681,10 @@
 
     applyTheme(localStorage.getItem(THEME_KEY));
 
-    // Respuestas
+    // Respuestas y controles por sección
     document.addEventListener('change', (event) => {
       const input = event.target;
+
       if (input.matches('.choice input[type="radio"]')) {
         const id = input.name.replace(/^q-/, '');
         state.answers[id] = input.value;
@@ -620,7 +692,17 @@
         const card = $(`.qcard[data-question="${id}"]`);
         if (card) card.dataset.answer = input.value;
         renderProgress();
+        return;
       }
+
+      if (input.matches('[data-filter-pending]')) {
+        applySectionFilter(Number(input.dataset.filterPending));
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      const jump = event.target.closest('[data-jump]');
+      if (jump) jumpToPending(Number(jump.dataset.jump));
     });
 
     // Perfil (autoguardado)
