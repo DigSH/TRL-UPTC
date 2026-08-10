@@ -67,6 +67,10 @@
 
   const pct = (value) => Math.round(value * 1000) / 10;
 
+  /* Concordancia de número: los textos de la ruta mezclan cantidades variables. */
+  const conj = (count, singular, plural) => (count === 1 ? singular : plural);
+  const count = (n, singular, plural) => `${n} ${conj(n, singular, plural)}`;
+
   function toast(message) {
     const el = $('#toast');
     el.textContent = message;
@@ -323,7 +327,9 @@
         ${nextLevel ? `
           <div class="next"><b>Siguiente objetivo — TRL ${result.achieved + 1}:</b>
             ${pct(nextLevel.ratio)} % completado frente al umbral de ${pct(nextLevel.threshold)} %.
-            Quedan <b>${nextPending}</b> actividad(es) por cerrar en ese nivel.</div>`
+            ${conj(nextPending, 'Queda', 'Quedan')} <b>${nextPending}</b>
+            ${conj(nextPending, 'actividad', 'actividades')} por cerrar en ese nivel.
+            <button type="button" class="linklike go-plan no-print" data-goto="plan">Ver la ruta completa hasta TRL 9 →</button></div>`
         : '<div class="next"><b>Máximo nivel alcanzado.</b> La tecnología opera en su forma final bajo el rango completo de condiciones previstas.</div>'}
       </div>`;
 
@@ -370,24 +376,109 @@
       <div class="full"><b>Descripción:</b> ${escapeHtml(state.profile.descripcion || '—')}</div>`;
   }
 
+  /* Ruta de maduración: para cada nivel, cuántas actividades faltan para superar
+     su umbral. Como el umbral es un porcentaje y la comparación es estricta (>),
+     el mínimo de respuestas "Sí" es floor(umbral × total) + 1. El epsilon evita
+     que un producto como 0,6 × 10 = 5,999… exija una actividad de menos. */
+  function buildRoadmap() {
+    const result = computeResults();
+    const levels = [];
+
+    for (let lvl = 1; lvl <= 9; lvl += 1) {
+      const stats = result.byTrl[lvl];
+      const items = allQuestions.filter((q) => q.trl === lvl);
+      const pending = items.filter((q) => state.answers[q.id] !== 'yes');
+      const needed = Math.min(items.length, Math.floor(stats.threshold * items.length + 1e-9) + 1);
+      const definition = DATA.levels.find((entry) => entry.trl === lvl);
+
+      levels.push({
+        trl: lvl,
+        name: definition ? definition.name : '',
+        stage: definition ? definition.stage : '',
+        yes: stats.yes,
+        total: items.length,
+        ratio: stats.ratio,
+        threshold: stats.threshold,
+        consolidated: stats.ratio > stats.threshold,
+        needed,
+        missing: Math.max(0, needed - stats.yes),
+        items,
+        pending,
+      });
+    }
+
+    // El cuello de botella es el nivel más bajo sin consolidar: bloquea la ruta.
+    const bottleneck = levels.find((level) => !level.consolidated);
+    return { result, levels, bottleneck };
+  }
+
   function renderPlan() {
     const onlyPending = $('#plan-only-pending').checked;
-    const groups = [];
-    for (let lvl = 1; lvl <= 9; lvl += 1) {
-      const items = allQuestions
-        .filter((q) => q.trl === lvl)
-        .filter((q) => !onlyPending || state.answers[q.id] !== 'yes');
-      if (items.length) groups.push({ trl: lvl, items });
-    }
+    const road = buildRoadmap();
+    const totalPending = allQuestions.filter((q) => state.answers[q.id] !== 'yes').length;
+    const remainingLevels = road.levels.filter((level) => !level.consolidated).length;
 
-    if (!groups.length) {
-      $('#plan-list').innerHTML = `<p class="empty">No hay actividades pendientes: todas las preguntas están respondidas con "Sí".</p>`;
-      return;
-    }
+    // ── Resumen y línea de progreso ───────────────────────────────────────
+    const stepper = road.levels.map((level) => {
+      const stateName = level.consolidated ? 'done'
+        : road.bottleneck && level.trl === road.bottleneck.trl ? 'next' : 'todo';
+      return `<span class="step" data-state="${stateName}" title="TRL ${level.trl}: ${pct(level.ratio)} % de ${pct(level.threshold)} %">${level.trl}</span>`;
+    }).join('');
 
-    $('#plan-list').innerHTML = groups.map((group) => {
-      const pending = group.items.filter((q) => state.answers[q.id] !== 'yes').length;
-      const rows = group.items.map((question) => {
+    $('#plan-summary').innerHTML = `
+      <div class="road-summary">
+        <div class="road-summary-head">
+          <div>
+            <span class="label">Situación actual</span>
+            <b>TRL ${road.result.achieved || '—'}</b>
+            <small>${escapeHtml(road.result.maturity)}</small>
+          </div>
+          <span class="road-arrow" aria-hidden="true">→</span>
+          <div>
+            <span class="label">Meta</span>
+            <b>TRL 9</b>
+            <small>Producción</small>
+          </div>
+          <div class="road-counts">
+            <div><b>${totalPending}</b><span>actividades pendientes</span></div>
+            <div><b>${remainingLevels}</b><span>niveles por consolidar</span></div>
+          </div>
+        </div>
+        <div class="stepper">${stepper}</div>
+        ${road.bottleneck ? `
+          <p class="road-focus"><b>Empiece por el TRL ${road.bottleneck.trl}.</b>
+            Es el nivel más bajo sin consolidar, así que marca el paso siguiente de la ruta:
+            necesita <b>${road.bottleneck.needed}</b> de ${road.bottleneck.total} actividades hechas para superar
+            su umbral del ${pct(road.bottleneck.threshold)} % y lleva ${road.bottleneck.yes},
+            así que <b>${conj(road.bottleneck.missing, 'le falta', 'le faltan')} ${road.bottleneck.missing}</b>.</p>`
+        : '<p class="road-focus"><b>Todos los niveles están consolidados.</b> La tecnología ha completado la ruta hasta el TRL 9.</p>'}
+      </div>`;
+
+    // ── Recomendaciones nivel por nivel ───────────────────────────────────
+    const blocks = road.levels.map((level) => {
+      const visible = onlyPending ? level.pending : level.items;
+      if (onlyPending && !visible.length) return '';
+
+      const isNext = road.bottleneck && level.trl === road.bottleneck.trl;
+      const stateName = level.consolidated ? 'done' : isNext ? 'next' : 'todo';
+      const stateLabel = level.consolidated ? 'Umbral superado' : isNext ? 'Siguiente paso' : 'Pendiente';
+
+      const left = level.pending.length;
+      let meta;
+      if (level.consolidated && !left) {
+        meta = `Nivel completo: las ${level.total} actividades están hechas.`;
+      } else if (level.consolidated) {
+        meta = `Umbral superado (${pct(level.ratio)} % frente al ${pct(level.threshold)} % exigido).
+          ${conj(left, 'Queda', 'Quedan')} ${count(left, 'actividad recomendada', 'actividades recomendadas')}
+          para completar el nivel al 100 %.`;
+      } else {
+        meta = `Necesita al menos <b>${level.needed}</b> de ${level.total} actividades hechas para superar el
+          umbral del ${pct(level.threshold)} %. Lleva ${level.yes}, así que
+          <b>${conj(level.missing, 'falta', 'faltan')} ${level.missing}</b>.
+          En este nivel ${conj(left, 'queda', 'quedan')} ${count(left, 'actividad pendiente', 'actividades pendientes')}.`;
+      }
+
+      const rows = visible.map((question) => {
         const done = state.answers[question.id] === 'yes';
         return `
           <div class="plan-item" data-done="${done}">
@@ -396,12 +487,24 @@
             <span class="plan-status" data-done="${done}">${done ? 'Hecha' : 'Pendiente'}</span>
           </div>`;
       }).join('');
+
       return `
-        <div class="plan-group">
-          <h2>TRL ${group.trl} <span class="count">${pending} pendiente(s) de ${group.items.length}</span></h2>
+        <section class="road-level" data-state="${stateName}">
+          <header class="road-level-head">
+            <span class="road-num">TRL ${level.trl}</span>
+            <div class="road-title">
+              <span class="road-stage">${escapeHtml(level.stage)}</span>
+              <h2>${escapeHtml(level.name)}</h2>
+            </div>
+            <span class="road-chip" data-state="${stateName}">${stateLabel}</span>
+          </header>
+          <p class="road-meta">${meta}</p>
           ${rows}
-        </div>`;
+        </section>`;
     }).join('');
+
+    $('#plan-list').innerHTML = blocks ||
+      '<p class="empty">No hay actividades pendientes: todas las preguntas están respondidas con «Sí».</p>';
   }
 
   // ═══════════════════════ Navegación ═══════════════════════

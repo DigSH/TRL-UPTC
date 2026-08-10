@@ -56,5 +56,45 @@ check('TRL 1 con 3/5 "Sí" (60 % ≤ 79 %) → 0', trlFor(partial(trl1, 3)), 0);
 const soloTrl9 = Object.fromEntries(questions.map((q) => [q.id, q.trl === 9 ? 'yes' : 'no']));
 check('solo TRL 9 respondido "Sí" → 9 (regla del Excel)', trlFor(soloTrl9), 9);
 
+// ── Mínimo de actividades para superar cada umbral ───────────────────────────
+// Réplica de buildRoadmap(): floor(umbral × total) + 1, con epsilon para que un
+// producto exacto representado como 5,999… no exija una actividad de menos.
+function needed(threshold, total) {
+  return Math.min(total, Math.floor(threshold * total + 1e-9) + 1);
+}
+function bruteForce(threshold, total) {
+  for (let yes = 0; yes <= total; yes += 1) if (yes / total > threshold) return yes;
+  return total;
+}
+
+let mismatches = [];
+for (let total = 1; total <= 40; total += 1) {
+  [0.6, 0.7, 0.79].forEach((th) => {
+    if (needed(th, total) !== bruteForce(th, total)) mismatches.push(`${th}×${total}`);
+  });
+}
+check('mínimo necesario coincide con la búsqueda exhaustiva', mismatches, []);
+
+const expected = { 1: 4, 2: 4, 3: 6, 4: 5, 5: 6, 6: 8, 7: 5, 8: 8, 9: 6 };
+const real = {};
+[1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((lvl) => {
+  const total = questions.filter((q) => q.trl === lvl).length;
+  real[lvl] = needed(DATA.thresholds[lvl], total);
+});
+check('actividades mínimas por nivel del instrumento', real, expected);
+
+// Con el mínimo exacto de cada nivel se debe alcanzar el TRL 9.
+const minimal = {};
+[1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((lvl) => {
+  questions.filter((q) => q.trl === lvl).forEach((q, i) => { minimal[q.id] = i < real[lvl] ? 'yes' : 'no'; });
+});
+check('respondiendo solo el mínimo de cada nivel → TRL 9', trlFor(minimal), 9);
+
+// Una actividad menos en el nivel 9 lo deja sin consolidar.
+const oneLess = Object.assign({}, minimal);
+const trl9 = questions.filter((q) => q.trl === 9);
+oneLess[trl9[real[9] - 1].id] = 'no';
+check('una actividad menos en TRL 9 → TRL 8', trlFor(oneLess), 8);
+
 console.log(failures ? `\n${failures} comprobación(es) fallida(s)` : '\nTodas las comprobaciones correctas');
 process.exit(failures ? 1 : 0);

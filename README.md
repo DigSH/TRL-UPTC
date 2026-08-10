@@ -15,8 +15,11 @@ de la persona que responde (se guardan en `localStorage`).
 - **Cálculo automático del TRL** (1–9) y del nivel de desarrollo asociado
   (concepto · investigación · prototipo de laboratorio · prototipo industrial · producción).
 - **Progreso por nivel TRL y por categoría**, con el umbral de cada nivel marcado sobre la barra.
-- **Plan de trabajo** generado a partir de las preguntas respondidas con «No», agrupado por nivel TRL
-  para priorizar el siguiente salto de madurez.
+- **Ruta de maduración hasta TRL 9**: recomendaciones generadas a partir de las preguntas respondidas
+  con «No», agrupadas por nivel. Para cada nivel indica cuántas actividades faltan para superar su
+  umbral y señala el **cuello de botella** —el nivel más bajo sin consolidar—, que es por donde debe
+  empezar el trabajo. Esto importa porque el TRL se asigna al nivel más alto que supera su umbral: una
+  tecnología puede figurar como TRL 7 y tener los niveles 4 y 5 sin consolidar.
 - **Glosario** integrado: los términos definidos aparecen subrayados dentro de las preguntas.
 - **Informe en PDF** (mediante la impresión del navegador) y **exportar/importar respuestas** en JSON
   para retomar el diagnóstico en otro equipo o archivarlo en el expediente de la tecnología.
@@ -40,6 +43,10 @@ Réplica exacta de la hoja `RESULTADOS` del libro original:
 
 Las preguntas sin responder cuentan como «No», igual que en el Excel. Siguiendo la guía original:
 si duda de una respuesta marque **No**; si la pregunta no aplica a su tecnología marque **Sí**.
+
+Como el umbral es un porcentaje y la comparación es estricta, el mínimo de respuestas «Sí» de un nivel
+es `floor(umbral × total) + 1`. La ruta de maduración usa ese mínimo para decir cuántas actividades
+faltan en cada nivel; `tools/verify.js` lo contrasta contra una búsqueda exhaustiva.
 
 ## Estructura
 

@@ -285,6 +285,7 @@ abbr.term {
 .score-side p { font-size: .92rem; }
 .score-side .stage { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); font-weight: 700; }
 .score-side .next { margin-top: .9rem; padding-top: .9rem; border-top: 1px dashed var(--border); font-size: .9rem; }
+.go-plan { display: block; margin-top: .5rem; color: var(--accent); font-weight: 600; }
 
 .bars { display: flex; flex-direction: column; gap: .45rem; }
 .bar-row {
@@ -318,13 +319,62 @@ abbr.term {
 .chip[data-answer="yes"] { background: var(--accent-soft); border-color: var(--ok); color: var(--ok); }
 .chip[data-answer="no"] { background: transparent; border-color: var(--danger); color: var(--danger); }
 
-/* ───────────── Plan de trabajo ───────────── */
-.plan-group { margin-bottom: 1.5rem; }
-.plan-group > h2 {
-  margin: 0 0 .6rem; font-size: 1rem; display: flex; align-items: center; gap: .6rem;
-  padding-bottom: .4rem; border-bottom: 2px solid var(--border);
+/* ───────────── Ruta de maduración ───────────── */
+.road-summary {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem 1.4rem; box-shadow: var(--shadow);
+  margin-bottom: 1.75rem;
 }
-.plan-group .count { font-size: .78rem; font-weight: 600; color: var(--text-dim); }
+.road-summary-head { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 1.5rem; }
+.road-summary-head > div .label {
+  display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-dim); font-weight: 700;
+}
+.road-summary-head > div b { font-size: 1.6rem; color: var(--accent); line-height: 1.2; }
+.road-summary-head > div small { display: block; color: var(--text-dim); font-size: .8rem; }
+.road-arrow { font-size: 1.5rem; color: var(--text-dim); }
+.road-counts { display: flex; gap: 1.5rem; margin-left: auto; }
+.road-counts div { text-align: center; }
+.road-counts b { display: block; font-size: 1.5rem; color: var(--text); line-height: 1.2; }
+.road-counts span { font-size: .72rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .05em; }
+
+.stepper { display: flex; gap: .35rem; margin: 1.1rem 0 .25rem; }
+.step {
+  flex: 1; text-align: center; font-size: .82rem; font-weight: 700;
+  padding: .35rem 0; border-radius: 6px;
+  background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border);
+}
+.step[data-state="done"] { background: var(--ok); border-color: var(--ok); color: #fff; }
+.step[data-state="next"] { background: var(--gold); border-color: var(--gold); color: #2a2200; }
+.road-focus { margin: .9rem 0 0; font-size: .9rem; padding-top: .9rem; border-top: 1px dashed var(--border); }
+
+.road-level { margin-bottom: 1.5rem; }
+.road-level-head {
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+  padding-bottom: .5rem; border-bottom: 2px solid var(--border);
+}
+.road-level[data-state="next"] .road-level-head { border-bottom-color: var(--gold); }
+.road-level[data-state="done"] .road-level-head { border-bottom-color: var(--ok); }
+.road-num {
+  font-weight: 800; font-size: 1rem; color: var(--accent);
+  background: var(--accent-soft); border-radius: 6px; padding: .25rem .6rem; white-space: nowrap;
+}
+.road-title { min-width: 0; flex: 1; }
+.road-title h2 { margin: 0; font-size: .98rem; }
+.road-stage { font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); font-weight: 700; }
+.road-chip {
+  font-size: .72rem; font-weight: 700; padding: .2rem .6rem; border-radius: 20px;
+  border: 1px solid var(--border); color: var(--text-dim); white-space: nowrap;
+}
+.road-chip[data-state="done"] { border-color: var(--ok); color: var(--ok); }
+.road-chip[data-state="next"] { border-color: var(--gold); color: var(--warn); }
+.road-meta { font-size: .88rem; color: var(--text-dim); margin: .7rem 0 .6rem; max-width: 78ch; }
+.road-meta b { color: var(--text); }
+
+@media (max-width: 720px) {
+  .road-counts { margin-left: 0; width: 100%; justify-content: space-around; }
+  .step { font-size: .72rem; }
+}
 .plan-item {
   display: grid; grid-template-columns: auto 1fr auto; gap: .85rem; align-items: start;
   background: var(--surface); border: 1px solid var(--border);
@@ -418,10 +468,14 @@ abbr.term {
 
   /* Los navegadores omiten los fondos al imprimir: las barras saldrían vacías. */
   .bar-track, .bar-fill, .bar-threshold, .chip,
-  .score-main .maturity, .plan-badge, .qtrl, .callout {
+  .score-main .maturity, .plan-badge, .qtrl, .callout,
+  .step, .road-num, .road-summary {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  .road-level, .road-summary, .road-level-head { break-inside: avoid; }
+  .road-level-head { break-after: avoid; }
 
   /* El ancho de página A4 cae por debajo del breakpoint móvil: se restaura
      la disposición en tres columnas para que cada barra ocupe una sola línea. */
