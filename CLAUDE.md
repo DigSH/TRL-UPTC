@@ -161,13 +161,15 @@ and `cab_otri.svg` stay in `assets/brand/` as masters but are not published; the
 theme-aware logo variants from them is in git history (commit 5e5a84f) if it is ever wanted back.
 Do not re-add logos to the page without asking.
 
-The colour palette in `styles.css` comes from those institutional colours and stays. Gold (`#e4b11d`)
-and pale teal (`#92c3c0`) sit below 4.5:1 on white, so they are only ever fills or text on dark — never
-text on a light background. Contrast figures are noted in the palette comment; keep them true if you
-change a colour.
+The colour palette in `styles.css` uses the official UPTC institutional colours: **`#1d1d1b`** (charcoal
+black) and **`#FFCC20`** (institutional gold), softened with warm stone neutrals (`#f5f4f0`, `#eceae3`)
+and smooth CSS gradients (`--grad-brand`, `--grad-bar`, `--grad-gold-soft`) so `#FFCC20` never looks
+overly saturated while maintaining WCAG AA/AAA contrast (`#FFCC20` on `#1d1d1b` is 11.4:1; on light
+backgrounds, `--gold-deep: #9e7800` or `#1d1d1b` is used for text).
 
-The guide hero reproduces the institutional banner's gradient with CSS `--hero-*` tokens rather than
-publishing `cab_otri.svg`, which is 270 kB of decorative strokes.
+The guide `.hero` and `.score-card` include lightweight inline SVG watermarks allusive to **TRL 1–9**
+(a 9-bar ascending readiness staircase, precision engineering rings/gear, and circuit traces) over the
+`#141413` → `#1d1d1b` → `#3a3115` gradient.
 
 Institutional hierarchy, which the footer reflects: **UPTC → Vicerrectoría de Investigación y
 Extensión → OTRI**.
